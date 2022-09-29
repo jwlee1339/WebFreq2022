@@ -1,0 +1,320 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta charset="utf-8" />
+    <title>水利署水利防災中心雨量站各延時降雨及頻率分析</title>
+
+    <!-- bootstrap v4.1.3 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+        integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+    <!-- Add icon library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <link href="./css/Style.css" rel="stylesheet" />
+    <link href="./css/w3_2016.css" rel="stylesheet" />
+
+</head>
+
+<body>
+    <div class="container-fluid">
+        <h1 class="text-center title text-dack-blue"><strong>歷年各延時降雨及頻率分析</strong></h1>
+
+        <!-- 使用者輸入及選項  -->
+
+        <div class="row">
+
+            <!-- 輸入框 -->
+
+            <div class="col-12">
+                <div class="input-group mb-3">
+
+                    <!-- 流域/縣市選擇 -->
+                    <div class="input-group-prepend">
+                        <!-- County or Basins -->
+                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            <label class="btn btn-outline-blue rounded active text-shadow">
+                                <input type="radio" name="AreaType" id="County" checked>縣市
+                            </label>
+                            <label class="btn btn-outline-blue rounded text-shadow">
+                                <input type="radio" name="AreaType" id="Basins">流域
+                            </label>
+                        </div>
+                        <!-- cwb or wra -->
+                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            <label class="btn btn-outline-blue rounded active text-shadow">
+                                <input type="radio" name="authority" id="cwb" checked>CWB
+                            </label>
+                            <label class="btn btn-outline-blue rounded text-shadow">
+                                <input type="radio" name="authority" id="wra">WRA
+                            </label>
+                        </div>
+                        <!-- <span class="input-group-text  blue-Gradual text-white text-shadow">流域</span> -->
+                    </div>
+                    <select id="basin-select" class="form-control"></select>
+
+                    <!-- 雨量站選擇 -->
+                    <div class="input-group-prepend">
+                        <span class="input-group-text blue-Gradual text-white text-shadow">雨量站</span>
+                    </div>
+                    <select id="stid-select" class="form-control"></select>
+
+                    <!-- 趨勢線切換 -->
+                    <div class="input-group-prepend">
+                        <span class="input-group-text   blue-Gradual text-white text-shadow"><input type="checkbox"
+                                id="checkTrendLine" class="input-group-text"><label
+                                for="checkTrendLine">繪製趨勢線</label></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 提醒訊息框 -->
+
+            <div class="col-12">
+
+                <span id="text-message" class="w3-text-red font-weight-bold" style="display:none;"><span
+                        class="sta-Cname"></span>測站統計年份不足5年!</span>
+                <span id="text-message-warning" class="w3-text-red font-weight-bold" style="display:none;"><span
+                        class="sta-Cname"></span>測站年份統計少於20年!請斟酌使用!</span>
+                <span id="text-message-no" class="w3-text-red font-weight-bold" style="display:none;"><span
+                        class="sta-Cname"></span>測站年份無資料!</span>
+            </div>
+        </div>
+
+        <!-- 歷年年最大降雨量變化圖 -->
+
+        <div class="row">
+            <div class="col-12">
+
+                <div class="card card-default">
+                    <div class="card-header   blue-Gradual text-white text-shadow">
+                        <div class="row">
+                            <div class="col-8">
+                                <span class="sta-Cname"></span>歷年年最大降雨量變化圖
+                                <span id="loading-indicator" class="w3-small w3-text-green"></span>
+                            </div>
+                            <div class="col-4">
+                                <div class="text-right">
+                                    延時<select id="duration-select" class="selectWrapper"></select>分鐘
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.panel-heading -->
+                    <div class="card-body">
+
+                        <p id="chart-subtitle" class="text-center">平均值: 年增率:</p>
+                        <div class="flot-chart">
+                            <div id="historic-Chart" class="demo-placeholder"></div>
+                        </div>
+
+                        <div class="input-group m-1">
+                            <input id="dataToFreq" type="text" class="form-control" placeholder=""
+                                aria-label="Recipient's username" aria-describedby="button-text">
+                            <div class="input-group-append">
+                                <button id="CopyData-btn" class="btn btn-outline-secondary blue-Gradual" type="button"
+                                    id="button-text">複製數據</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--- pannel pannel-default --->
+            </div>
+            <!--- col-lg-8 -->
+        </div>
+
+
+        <!-- 頻率分析結果表  -->
+
+        <div>
+            <h3 class="w3-xlarge w3-center">
+                <span class="sta-Cname"></span>
+                頻率分析結果表
+                <span class="Freq-Duration"></span>
+            </h3>
+
+            <div class="pull-right">
+                <label>估計雨量(mm): </label>
+                <input id="EstimateValue" value="" style="width:100px;" />
+                <button class="w3-btn w3-red" id="FindReturnPeriod">
+                    估計重現期
+                </button>
+            </div>
+
+            <!-- 頻率分析結果表 -->
+            <div id="Freq-Results-Table"></div>
+        </div>
+
+        <!-- 統計檢定總覽表 -->
+        <div id="test-results"></div>
+
+        <br />
+
+        <!-- KS檢定圖 -->
+        <h3 class="w3-xlarge text-center">
+            <span class="sta-Cname"></span>
+            KS檢定圖
+            <span class="Freq-Duration"></span>
+        </h3>
+
+        <div>
+
+            <!-- 選擇機率分布 -->
+            <form id="mainForm" class="flex justify-content-center flex-wrap mb-2">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="2" id="N-Dist" value="0" />
+                    <label class="form-check-label pl-0 pr-2" for="N-Dist">常態分布</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="2" id="LN-Dist" value="1" />
+                    <label class="form-check-label pr-2" for="LN-Dist">對數常態分布</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="2" id="P3-Dist" value="2" />
+                    <label class="form-check-label pl-0 pr-2" for="P3-Dist">
+                        皮爾森三型
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" checked type="radio" name="2" id="LP3-Dist" value="3" />
+                    <label class="form-check-label pr-2" for="LP3-Dist">對數皮爾森三型</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="2" id="EXI-Dist" value="4" />
+                    <label class="form-check-label pr-2" for="EXI-Dist">極端值一型</label>
+                </div>
+            </form>
+            <span id="result"></span>
+        </div>
+
+        <!-- KS檢定圖 -->
+
+        <div class="row">
+            <div class="col-6">
+                <div class="card card-primary">
+                    <div class="card-header text-center blue-Gradual text-white text-shadow">
+                        KS檢定圖<span class="Freq-Duration"></span>
+                    </div>
+                    <div class="card-body">
+                        <p class="KS-Chart-Title w3-xlarge w3-center"></p>
+                        <div class="flot-chart">
+                            <div id="KSTest-Chart" class="demo-placeholder"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6">
+                <div class="card card-primary">
+                    <div class="card-header text-center blue-Gradual text-white text-shadow">
+                        機率圖<span class="Freq-Duration"></span>
+                    </div>
+                    <div class="card-body">
+                        <p class="KS-Chart-Title w3-xlarge w3-center"></p>
+                        <div class="flot-chart">
+                            <div id="Prob-Chart" class="demo-placeholder"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KS檢定結果表 -->
+
+        <div class="row">
+            <div class="col-12">
+                <p class="w3-xlarge w3-center">
+                    <span class="sta-Cname"></span>
+                    KS檢定結果表
+                    <span class="Freq-Duration"></span>
+                </p>
+            </div>
+
+            <div class="col-12">
+
+                <div class="list-group-item  w3-large  text-white  blue-Gradual text-shadow">
+                    <span class="FCST-BG-time" data-toggle="tooltip" data-placement="bottom"></span>
+                    <a href="#KSTb" onclick="KSTbShow_Click()" data-toggle="collapse"
+                        class="accordion-toggle minimize-box pull-right">
+                        <center>詳細資料<small>(請點選展開)</small></center>
+                        <!--<i id="icon-KS-table" class="fa fa-angle-double-down simulate-resName"></i>-->
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div id="KSTb" class="table-responsive accordion-body collapse body">
+                    <table class="table table-bordered table-striped table-condensed">
+                        <thead>
+                            <tr>
+                                <td>觀測值</td>
+                                <td>超越機率</td>
+                                <td>下限</td>
+                                <td>估計值</td>
+                                <td>上限</td>
+                                <td>Mark</td>
+                            </tr>
+                        </thead>
+                        <tbody id="KSTest-tbody"></tbody>
+                    </table>
+                    註 : Mark欄位符號"-"表示低於下限，"+"表示高於上限，"G"則在上下限之間。
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <!-- 各延時降雨量統計表 -->
+
+        <div id="Statistics-Table"></div>
+
+        <!-- 歷年各延時年最大降雨量表 -->
+
+        <div class="row">
+            <div class="col-12">
+                <p class="w3-xlarge w3-center">
+                    <span class="sta-Cname"></span>
+                    歷年各延時年最大降雨量表
+                </p>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-condensed">
+                        <thead class="intens-thead"></thead>
+                        <tbody id="intens-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--- jquery -->
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
+
+    <!-- Bootstrap v4.1.3 -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+        integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+        crossorigin="anonymous"></script>
+
+    <!-- flot chart -->
+    <script src="./flot/jquery.flot.js"></script>
+    <script src="./flot/jquery.flot.time.js"></script>
+    <script src="./flot/jquery.flot.resize.js"></script>
+    <script src="./flot/jquery.flot.tooltip.min.js"></script>
+    <script src="./flot/jquery.flot.axislabels.js"></script>
+    <script src="./flot/jquery.flot.dashes.js"></script>
+
+    <!-- main.js -->
+    <script src="js/main.js" type="module"></script>
+
+</body>
+
+</html>
