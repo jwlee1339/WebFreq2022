@@ -1,0 +1,76 @@
+<html>
+    <style>
+        .responsive-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #eee;
+}
+
+.menu-toggle {
+  display: none;
+}
+
+.nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+details {
+  display: block;
+}
+
+details[open] ul {
+  display: block;
+}
+
+@media only screen and (max-width: 768px) {
+  .responsive-nav {
+    flex-direction: column;
+  }
+  .menu-toggle {
+    display: block;
+  }
+  .nav-list {
+    display: none;
+  }
+  details[open] ul {
+    display: block;
+  }
+}
+
+    </style>
+<body>
+    <nav class="responsive-nav">
+        <button class="menu-toggle">
+          <img src="https://i.ibb.co/tZ12g4f/menu-icon.png" alt="Menu icon">
+        </button>
+        <ul class="nav-list">
+          <details>
+            <summary>Item 1</summary>
+            <ul>
+              <li><a href="#">Sub-item 1.1</a></li>
+              <li><a href="#">Sub-item 1.2</a></li>
+            </ul>
+          </details>
+          <details>
+            <summary>Item 2</summary>
+            <ul>
+              <li><a href="#">Sub-item 2.1</a></li>
+              <li><a href="#">Sub-item 2.2</a></li>
+            </ul>
+          </details>
+          <details>
+            <summary>Item 3</summary>
+            <ul>
+              <li><a href="#">Sub-item 3.1</a></li>
+              <li><a href="#">Sub-item 3.2</a></li>
+            </ul>
+          </details>
+        </ul>
+      </nav>
+      
+</body>
+</html>
